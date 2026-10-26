@@ -1,0 +1,7 @@
+{
+  "name": "dsh-cortico-pet-window",
+  "version": "0.1.0",
+  "private": true,
+  "description": "The opaque-window-less, always-on-top, click-through shell the pet lives in on the desktop",
+  "main": "main.js"
+}

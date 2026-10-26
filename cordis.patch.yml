@@ -1,0 +1,8 @@
+# dsh-cortico-pet 的 bundle patch：把这只桌宠挂进 Harness 的配置树。
+# 装成 bundle 后，DSH 启动时会把这行 entry 合并进 cordis.yml；package.json 里声明的
+# dsh.client 同时让模块系统把它扫成一个浏览器插件，页面自会拿到 /plugins/dsh-cortico-pet/client.js。
+#
+# 没有 config：桌宠的偏好存在 <profile>/dsh-cortico-pet.json，从「设置 → 桌宠」里改，改完立即生效。
+- insert:
+    - id: cortico-pet
+      name: 'dsh-cortico-pet'

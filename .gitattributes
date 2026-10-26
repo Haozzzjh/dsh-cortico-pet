@@ -1,0 +1,11 @@
+# 行尾统一 LF：Windows 上 git 默认会转 CRLF，换行噪音会把 diff 搞乱
+* text=auto eol=lf
+
+# 二进制别当文本处理
+*.png binary
+*.webp binary
+*.jpg binary
+*.ogg binary
+*.mp3 binary
+*.wav binary
+*.zip binary

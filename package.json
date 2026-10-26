@@ -1,0 +1,43 @@
+{
+  "name": "dsh-cortico-pet",
+  "version": "0.1.0",
+  "description": "Cortico 的桌宠，搬进 DeepSeek Harness：网页浮层里的一只 Q 版大肥鱼，跟着你的会话一起思考、一起收工。",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "desktop-pet",
+    "cortico",
+    "web-overlay"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "lib",
+    "desktop",
+    "web",
+    "README.md",
+    "NOTICE.md"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": []
+    }
+  }
+}

@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>桌宠设置 · dsh-cortico-pet</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f6f7f9;
+    --card: #ffffff;
+    --line: #e3e6ea;
+    --text: #1c1f24;
+    --muted: #6b7280;
+    --brand: #4d6bfe;
+    --chip-on: #4d6bfe;
+    --chip-on-text: #ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #15171b; --card: #1d2025; --line: #2c3037; --text: #e6e8ec; --muted: #9aa1ab; --brand: #7b93ff; }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 28px 20px 64px;
+    background: var(--bg); color: var(--text);
+    font: 14px/1.6 system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+  }
+  .wrap { max-width: 700px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font-size: 19px; margin: 0 0 4px; }
+  .lead { color: var(--muted); font-size: 13px; margin: 0 0 8px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 14px; }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .row .label { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .row .label b { font-size: 13.5px; font-weight: 600; }
+  .row .label span { font-size: 12px; color: var(--muted); }
+  .row .label code { font-size: 11.5px; padding: 0 4px; border-radius: 4px; background: var(--bg); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+  button {
+    font: inherit; cursor: pointer; border-radius: 999px;
+    border: 1px solid var(--line); background: transparent; color: var(--text);
+    padding: 5px 13px; font-size: 12.5px;
+  }
+  button.chip.on { background: var(--chip-on); border-color: var(--chip-on); color: var(--chip-on-text); }
+  button.ghost { border-radius: 10px; padding: 8px 14px; }
+  .switch { width: 40px; height: 23px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg); position: relative; padding: 0; flex: 0 0 auto; }
+  .switch i { position: absolute; top: 2px; left: 2px; width: 17px; height: 17px; border-radius: 999px; background: var(--muted); transition: left .15s ease, background .15s ease; }
+  .switch.on { background: var(--brand); border-color: var(--brand); }
+  .switch.on i { left: 19px; background: #fff; }
+  input[type=range] { width: 190px; accent-color: var(--brand); }
+  input[type=text] {
+    font: inherit; font-size: 12.5px; width: 230px; padding: 6px 10px;
+    border-radius: 9px; border: 1px solid var(--line); background: var(--bg); color: var(--text);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  select {
+    font: inherit; font-size: 12.5px; max-width: 320px; padding: 6px 10px;
+    border-radius: 9px; border: 1px solid var(--line); background: var(--bg); color: var(--text);
+  }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .foot { color: var(--muted); font-size: 12px; text-align: center; }
+  .foot code { font-size: 11.5px; }
+  .saved { color: var(--brand); font-size: 12px; opacity: 0; transition: opacity .2s ease; }
+  .saved.on { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div>
+    <h1>桌宠设置</h1>
+    <p class="lead">改完立即生效，存在 Harness 里（不是这个页面）。<span class="saved" id="saved">已保存</span></p>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <div class="label"><b>显示桌宠</b><span>关掉就整块收起，侧边栏的眼睛按钮可以再叫回来。</span></div>
+      <button class="switch" id="enabled" type="button" role="switch"><i></i></button>
+    </div>
+    <div class="row">
+      <div class="label"><b>她住在哪儿</b><span>桌面窗口＝真正的透明置顶窗口，盖在整个桌面上，平时鼠标穿透；页面内＝只在 Harness 窗口里浮着。</span></div>
+      <div class="chips" id="surface"></div>
+    </div>
+    <div class="row">
+      <div class="label"><b>桌面窗口状态</b><span id="desktopState">读取中…</span></div>
+      <div class="actions">
+        <button class="ghost" id="restartWindow" type="button">重启桌面窗口</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <div class="label"><b>形象</b></div>
+      <div class="chips" id="figure"></div>
+    </div>
+    <div class="row">
+      <div class="label"><b>配色</b><span>她穿谁家的工作服。</span></div>
+      <div class="chips" id="scheme"></div>
+    </div>
+    <div class="row">
+      <div class="label"><b>服装</b><span>女仆 / 冬装 / 店员。</span></div>
+      <div class="chips" id="outfit"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <div class="label"><b>大小</b><span id="scaleText">100%</span></div>
+      <input type="range" id="scale" min="0.6" max="1.8" step="0.05">
+    </div>
+    <div class="row">
+      <div class="label"><b>光晕</b><span id="glowText">7</span></div>
+      <input type="range" id="glow" min="0" max="20" step="1">
+    </div>
+    <div class="row">
+      <div class="label"><b>走动</b><span>off 站着不动，calm 偶尔溜达，free 想走就走。</span></div>
+      <div class="chips" id="roam"></div>
+    </div>
+    <div class="row">
+      <div class="label"><b>音效</b><span>脚步、被碰的小动静。</span></div>
+      <button class="switch" id="sound" type="button" role="switch"><i></i></button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <div class="label"><b>状态气泡</b><span>她头顶那行「在想… · read」。</span></div>
+      <button class="switch" id="statusBubble" type="button" role="switch"><i></i></button>
+    </div>
+    <div class="row">
+      <div class="label"><b>回答说一遍</b><span>每轮结束把答案第一句念在气泡里。</span></div>
+      <button class="switch" id="sayReplies" type="button" role="switch"><i></i></button>
+    </div>
+    <div class="row">
+      <div class="label"><b>抱在怀里聊天</b><span>点她身上的对话按钮，打字就发进当前会话。</span></div>
+      <button class="switch" id="chatEnabled" type="button" role="switch"><i></i></button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <div class="label"><b>跟随会话</b><span>「自动」＝跟最新在动的那个；挑一个就只看它 —— 她的截图也投给它。</span></div>
+      <select id="followSession"><option value="">自动（最新在动的会话）</option></select>
+    </div>
+    <div class="row">
+      <div class="label"><b>跟随工作区</b><span>按 cwd 子串匹配，比会话 id 稳（桥接那种 agent 会话会轮换）。填一段目录名就只跟那边。</span></div>
+      <input type="text" id="followCwd" placeholder="不限" spellcheck="false">
+    </div>
+    <div class="row">
+      <div class="label"><b>念机器人发出去的话</b><span>用气泡说出桥接机器人刚发出去的那一句（群聊 / 私聊都算）。</span></div>
+      <button class="switch" id="relayQq" type="button" role="switch"><i></i></button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <div class="label"><b>让她看桌面</b><span>打开后，宠物菜单里会多一个眼睛按钮；每按一次截一张屏幕、投给她盯着的那个会话，答案念在气泡里。会话也能主动调 <code>pet_see_desktop</code> 截图。不开就一律不截。</span></div>
+      <button class="switch" id="sight" type="button" role="switch"><i></i></button>
+    </div>
+    <div class="row">
+      <div class="label"><b>现在看一眼</b><span id="sightState">还没看过。</span></div>
+      <button class="ghost" id="lookNow" type="button">看一眼</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <div class="label"><b>调试宿主事件</b><span>把 Host 事件原文写进 dsh-cortico-pet.log。</span></div>
+      <button class="switch" id="debugEvents" type="button" role="switch"><i></i></button>
+    </div>
+    <div class="actions">
+      <button class="ghost" id="openPet" type="button">在新标签页里看宠物</button>
+      <button class="ghost" id="reset" type="button">恢复默认</button>
+    </div>
+  </div>
+
+  <p class="foot">偏好文件：<code id="prefsPath">~/.dsh/dsh-cortico-pet.json</code></p>
+</div>
+<script src="/web/settings.js"></script>
+</body>
+</html>

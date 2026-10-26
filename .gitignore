@@ -1,0 +1,18 @@
+# 运行时产物：Harness 会往 profile 里写这些，不该进仓库
+node_modules/
+*.log
+dsh-cortico-pet.log
+dsh-cortico-pet.json
+
+# 本机的桌面窗口运行时（解压出来的 Electron 不会落在仓库里，保险写一行）
+.electron/
+
+# 截图 / 调试输出
+shots/
+out/
+*.tmp
+
+# 系统垃圾
+.DS_Store
+Thumbs.db
+desktop.ini
