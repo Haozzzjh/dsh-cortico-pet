@@ -1,12 +1,17 @@
 # dsh-cortico-pet
 
-把 [Cortico](https://github.com/Pal-AI-Lab/Cortico) 的桌宠搬进 **DeepSeek Harness**：一只 Q 版大肥鱼（DeepSeek 女仆鲸）。
+把 [Cortico](https://github.com/Pal-AI-Lab/Cortico) 的桌宠搬进 **DeepSeek Harness**：一只 Q 版「大肥鱼」（DeepSeek 女仆鲸）。
 她能**住在桌面上**（真·透明置顶窗口，盖住整个桌面、平时鼠标穿透），也能只在 Harness 窗口里浮着——
 想你的时候溜达两步，你干活的时候跟着想、跟着跑工具、收工时点点头，闲久了会打盹。
 
-> 原版是 Electron 透明置顶窗口 + Cortico World。这里「照搬」的是**宠物本身**（页面、形象包、动作、台词、气泡、
-> 菜单、拖拽物理），换掉的是**宿主**：World 的智能体循环 → Harness 事件流；置顶窗口 → 自己拉起的 Electron
-> 透明窗口（桌面）或 Harness 页面里的穿透 iframe（页面内），两者加载的是同一张宠物页。
+> **⚠️ 非官方移植**：这是社区作品，不是官方插件，与上游作者、DeepSeek 官方都没有隶属、授权或背书关系。
+
+- **上游**是 `cortico-world-desktop-pet`（[Pal-AI-Lab/Cortico](https://github.com/Pal-AI-Lab/Cortico)，MIT）。
+  Coopanion 里内置的那只桌宠就是它；本仓库把「宠物本身」搬进 Harness，换掉了宿主，别的没变。
+- **遇到问题请提到本仓库的 Issues**，不要去打扰上游维护者。
+- **形象**（鲸鱼娘）是**同人二创**，署名与再分发注意事项见 [NOTICE.md](NOTICE.md)。
+- **许可**：本移植部分 MIT，见 [LICENSE](LICENSE)；上游许可见
+  [LICENSE.cortico-world-desktop-pet](LICENSE.cortico-world-desktop-pet)。
 
 ![她在桌面上，头顶挂着这一轮在干什么](docs/desktop.png)
 
@@ -16,7 +21,44 @@
   <img src="docs/settings.png" width="520" alt="设置页">
 </p>
 
----
+## 特性
+
+- **两种住法**：真·桌面透明置顶窗口（鼠标穿透），或 Harness 窗口里的穿透浮层；两种加载的是同一张宠物页
+- **跟着 Harness 的事件动**：一轮开始冒「在想…」、跑工具时报「读文件 · read」「跑命令 · pwsh」、说完话念第一句、
+  出错晕一下、收工点头、5 分钟没动静自己坐下打盹
+- **鼠标只在她身上吃事件**，其余地方完全穿透，不影响你点按钮、拖选区
+- 点她会吓一跳 / 被戳 / 被拎起来扔；右键或长按出菜单（聊天 / 走动 / 配色 / 音效 / 装扮）
+- **抱在怀里聊天**：点「聊天」打字回车 → 直接当成 prompt 发进你当前这个会话
+- **8 套配色 × 3 套服装**（Harness / DeepSeek / ChatGPT / Claude / Gemini / Qwen / Kimi / MiniMax × 女仆 / 冬装 / 店员）
+- **跟随会话 / 跟随工作区**：跟最新在动的会话，或钉死某一个（会话 id 会轮换的场景按 cwd 钉）
+- **念机器人发出去的话**：桥接机器人调用发送工具时，她在气泡里说出刚发出去的那一句
+- **她的眼睛**（可选、默认关）：点一下截屏投给她盯着的会话，或由会话自己调 `pet_see_desktop` 拿截图
+- 全部偏好落在 profile 里的一份 JSON，改完立即生效，不需要重启
+
+## 安装与使用
+
+**要求**：Windows + DeepSeek Harness（桌面端）；Node 22+ 只在你手动跑 `dev/` 自检时才需要。
+
+```powershell
+# 1) 把仓库放到本机任意位置，然后在 Harness 里「插件 → 安装」填 link: 加绝对路径
+#    插件 → 安装 → link:<这个仓库的绝对路径>
+
+# 2) 或者命令行（profile 目录按你的 Harness 版本可能是 profiles/web 等）
+cd ~/.dsh/profiles/desktop
+pnpm add link:<这个仓库的绝对路径>
+
+# 3) 重启一次 DeepSeek Harness
+```
+
+重启后插件列表里应出现 `dsh-cortico-pet`（active），桌面上就会出现她。第一次用：
+
+1. **设置 → 桌宠**：确认「显示桌宠」是开的；「她住在哪儿」默认 `自动`（桌面窗口起得来就用桌面）。
+2. 想换皮肤：配色 / 服装 / 大小 / 光晕都在同一页。
+3. 想让她能看屏幕：打开「让她看桌面」——细节见下面「她的眼睛」，默认是关的。
+4. 桌面窗口起不来的话，独立设置页里能看到原因（「桌面窗口状态」），旁边可以「重启桌面窗口」。
+
+> 装完**必须重启一次 Harness**：Host 半边是新代码，Node 的模块缓存不会热更。
+> 之后再改配置不用重启；只改 `web/` 下的前端文件，刷新页面即可。
 
 ## 两种住法
 
@@ -33,56 +75,6 @@
 
 > 踩过的坑：Harness 桌面端给子进程导出了 `ELECTRON_RUN_AS_NODE=1`，谁继承它谁就跑成纯 Node。
 > `lib/desktop-window.js` 在 spawn 前把它（连同 `NODE_OPTIONS`）删掉。
-
-## 效果
-
-- Q 版鲸鱼娘，8 套配色（Harness / DeepSeek / ChatGPT / Claude / Gemini / Qwen / Kimi / MiniMax）× 3 套服装（女仆 / 冬装 / 店员）
-- 鼠标**在她身上**才吃事件，其余地方完全穿透，不影响你点按钮、拖选区
-- 点她会吓一跳 / 被戳 / 被拎起来扔；右键或长按出菜单；身上的小按钮有「聊天」「走动」「音效」
-- 跟她说话：点「聊天」，打字回车 → 直接当成 prompt 发进你当前这个会话
-- 跟着 QQ / 任意桥接：`followCwd=<那个 agent 会话 cwd 的片段>`，她在气泡里说出机器人刚发出去的那一句
-
-## 它跟着 Harness 干什么
-
-| Harness 里发生的事 | 她做什么 |
-|---|---|
-| 一轮开始（`turn/start` / agent 转 running） | 头上冒「在想…」，表情 `thinking` |
-| 跑工具（`tool/call`） | 状态气泡换成「读文件 · read」「跑命令 · pwsh」这类，配对应的图标；点头 |
-| 工具出错 / 模型报错（`agent/error`） | `dizzy` + 「出错了」 |
-| 说完一段（`assistant/message`） | 把答案第一句念在气泡里（可关），`happy` |
-| 一轮结束（`turn/end` completed） | 点一下头，回到站着/溜达 |
-| 被中止（`aborted`） | `confused` |
-| 5 分钟没动静 | 坐下打盹（`sleep`）；下一轮开始自己站起来 |
-
-## 装法
-
-```powershell
-# 1) 拿到仓库后，在 Harness 里「插件 → 安装」填 link: 加本地路径
-#    插件 → 安装 → link:<这个仓库的绝对路径>
-# 2) 或者命令行（profile 目录按你的 Harness 版本可能不同）
-cd ~/.dsh/profiles/desktop
-pnpm add link:<这个仓库的绝对路径>
-# 3) 重启 Harness，插件列表里应出现 dsh-cortico-pet（active）
-```
-
-装好以后：设置 → 桌宠。她默认住在桌面（`surface: auto`）；没有 Electron 运行时会自动退回页面内。
-装完**重启一次 DeepSeek Harness**（Host 半边是新代码，Node 的模块缓存不会热更），之后桌宠就出现在窗口里。
-之后改配置不用重启，改 `web/` 下的前端文件也只要刷新页面。
-
-## 它怎么挂上去的
-
-Holistic 起见说清楚两条通道（很容易被问「为什么不用 client 插件挂 overlay」）：
-
-1. **浮层走 index 注入**：Host 半边用 `ctx.webServer.tapIndex()` 在每次渲染 index.html 时插两行——
-   `window.__DSH_CORTICO_PET__`（宠物服务地址 + 偏好）和 `<script src="http://127.0.0.1:PORT/web/dsh-overlay.js">`。
-   这段脚本在 Harness 页面里建一个铺满窗口、默认穿透的透明 iframe。Harness 的 index 没有 CSP，
-   跨源脚本与跨源 iframe 都允许，所以这条路只依赖 `webServer`，不依赖客户端插件装载器。
-2. **`client.js` 只是锦上添花**：它提供「设置 → 桌宠」这一页和侧边栏底部的眼睛按钮，
-   通过 `dsh.client` 被扫成浏览器插件。它加载失败也不影响桌宠本身。
-3. **写入走同源路由**：`POST /dsh-cortico-pet/api/prefs` 由 Host 半边在 Harness 自己的源上直接应答，
-   `GET /dsh-cortico-pet/api/state` 同理。所以设置页不需要知道宠物服务的端口，也不会有跨源预检；
-   宠物服务优先绑 **39666**，重载后端口尽量不变，已经开着的页面也照样能写进去。客户端另外每 10 秒
-   重读一次 `entry.json`，万一端口变了会自己跟上。
 
 ## 设置
 
@@ -147,7 +139,34 @@ Holistic 起见说清楚两条通道（很容易被问「为什么不用 client 
 
 偏好落在 `<profile>/dsh-cortico-pet.json`（Host 里有 `DSH_PROFILE_DIR` 时），否则 `~/.dsh/dsh-cortico-pet.json`。
 
-## 结构
+## 它跟着 Harness 干什么
+
+| Harness 里发生的事 | 她做什么 |
+|---|---|
+| 一轮开始（`turn/start` / agent 转 running） | 头上冒「在想…」，表情 `thinking` |
+| 跑工具（`tool/call`） | 状态气泡换成「读文件 · read」「跑命令 · pwsh」这类，配对应的图标；点头 |
+| 工具出错 / 模型报错（`agent/error`） | `dizzy` + 「出错了」 |
+| 说完一段（`assistant/message`） | 把答案第一句念在气泡里（可关），`happy` |
+| 一轮结束（`turn/end` completed） | 点一下头，回到站着/溜达 |
+| 被中止（`aborted`） | `confused` |
+| 5 分钟没动静 | 坐下打盹（`sleep`）；下一轮开始自己站起来 |
+
+## 它怎么挂上去的
+
+说清楚两条通道（很容易被问「为什么不用 client 插件挂 overlay」）：
+
+1. **浮层走 index 注入**：Host 半边用 `ctx.webServer.tapIndex()` 在每次渲染 index.html 时插两行——
+   `window.__DSH_CORTICO_PET__`（宠物服务地址 + 偏好）和 `<script src="http://127.0.0.1:PORT/web/dsh-overlay.js">`。
+   这段脚本在 Harness 页面里建一个铺满窗口、默认穿透的透明 iframe。Harness 的 index 没有 CSP，
+   跨源脚本与跨源 iframe 都允许，所以这条路只依赖 `webServer`，不依赖客户端插件装载器。
+2. **`client.js` 只是锦上添花**：它提供「设置 → 桌宠」这一页和侧边栏底部的眼睛按钮，
+   通过 `dsh.client` 被扫成浏览器插件。它加载失败也不影响桌宠本身。
+3. **写入走同源路由**：`POST /dsh-cortico-pet/api/prefs` 由 Host 半边在 Harness 自己的源上直接应答，
+   `GET /dsh-cortico-pet/api/state` 同理。所以设置页不需要知道宠物服务的端口，也不会有跨源预检；
+   宠物服务优先绑 **39666**，重载后端口尽量不变，已经开着的页面也照样能写进去。客户端另外每 10 秒
+   重读一次 `entry.json`，万一端口变了会自己跟上。
+
+## 目录结构
 
 ```
 dsh-cortico-pet/
@@ -190,8 +209,8 @@ dsh-cortico-pet/
 
 | Cortico 桌宠 | 这里 |
 |---|---|
-| Electron 透明置顶窗口 | `webServer.tapIndex` 注入的一个 `position:fixed; inset:0` 的 iframe，`pointer-events` 默认 none |
-| `host/preload.cjs` 提供 `window.petHost` | `web/dsh-pet-host.js`（唯一新增的前端文件）站同一个位，`setInteractive` 转发给父页面去翻 `pointer-events` |
+| Electron 透明置顶窗口 | 两种：自己拉起的 Electron 透明窗口（桌面），或 `webServer.tapIndex` 注入的 `position:fixed; inset:0` 穿透 iframe（页面内） |
+| `host/preload.cjs` 提供 `window.petHost` | `web/dsh-pet-host.js` 站在同一个位，`setInteractive` 转发给父页面去翻 `pointer-events` |
 | 窗口进程定时上报鼠标位置（`onCursor`） | 父页面在 `pointermove` 里把坐标 postMessage 进去，页面自己 `body.hit()` 判定 |
 | `src/world.ts`：漫游、对话、语音、CUA、换装页（98 KB） | `lib/brain.js`：把 Harness 事件翻成 `say/act/status/prefs` |
 | `src/server.ts`（自我 loopback server） | `lib/pet-server.js`，同一个文件树、同一套 `/web/` `/api/figures` `/figure-frame` `/socket` |
@@ -201,9 +220,9 @@ dsh-cortico-pet/
 
 ## 已知限制
 
-- **跟随的是「最新在动的根会话」**。同一台机器上还开着别的会话（比如某个聊天机器人 / 桥接的会话）时，她也会跟着那个会话动，
-  用对话内容当气泡——不想这样就填「跟随会话」。
-- 浏览器内核，不是真窗口：合上 Harness 就不在；全屏/切窗口不会有"置顶"，但它在所有 Harness 内容之上。
+- **跟随的是「最新在动的根会话」**。同一台机器上还开着别的会话（比如某个聊天机器人 / 桥接的会话）时，
+  她也会跟着那个会话动，用对话内容当气泡——不想这样就填「跟随会话」或「跟随工作区」。
+- 桌面窗口目前只盖**主显示器**；跨屏拖、多屏摆放还没做。
 - `web/` 是上游产物：上游升级形象包时可以把整个目录重新拷一遍，只要记住给 `pet.html` 补那行 `<script>`，
   并重新套一遍 `pet-app.js` 里的 `BRAND`（名字 + 头像，就两行）。
 - 形象包里的 WebGL 引擎需要能开 WebGL；开不了就**没有兜底形象**了（Coo 已按需求移除），
@@ -216,7 +235,9 @@ dsh-cortico-pet/
 
 ## 出处与许可
 
+- **非官方**：本仓库是社区移植，与 Pal-AI-Lab / Cortico、Coopanion 的作者、DeepSeek 官方均无隶属关系。
 - 前端（`web/`）与 `lib/pet-server.js` 的蓝本来自 **`cortico-world-desktop-pet`**（Pal-AI-Lab，MIT），
   许可证见 `LICENSE.cortico-world-desktop-pet`、`THIRD_PARTY_NOTICES.cortico-world-desktop-pet.md`。
-- 鲸鱼娘形象：角色原设 溪月(上善无型)，DeepSeek 女仆二创 ZipZipPipe（见上游 `figure.json` 的 credits）。
-- 本移植部分：MIT。
+- 鲸鱼娘形象：角色原设 溪月(上善无型)，DeepSeek 女仆二创 ZipZipPipe（见上游 `figure.json` 的 credits）；
+  同人二创的再分发请自行确认授权，详见 [NOTICE.md](NOTICE.md)。
+- 本移植部分：MIT，见 [LICENSE](LICENSE)。

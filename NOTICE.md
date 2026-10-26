@@ -1,5 +1,8 @@
 # 出处与第三方声明
 
+> **非官方移植**：本仓库是社区作品，与 `cortico-world-desktop-pet` 的作者（Pal-AI-Lab）、
+> Coopanion 的作者、DeepSeek 官方均无隶属、授权或背书关系。上游问题请不要提到上游仓库。
+
 本插件的宠物前端与网络层蓝本来自 Cortico 桌宠形象包/World：
 
 - 包名：`cortico-world-desktop-pet`
